@@ -167,7 +167,7 @@ body { overflow-x: hidden; }
 
 @media (min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) {
   .page-shell { max-width: none; padding: 0; overflow: visible; }
-  .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; max-width: 1440px; margin: 0 auto; padding: 0 7.2%; background: rgba(23, 19, 33, .86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; max-width: 100%; margin: 0 auto; padding: 0 7.2%; background: rgba(23, 19, 33, .86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
   .panel-counter { display: inline-flex; align-items: center; color: #61e6d6; font-size: 9px; font-weight: 900; letter-spacing: .16em; font-variant-numeric: tabular-nums; }
   .scroll-progress { display: block; position: absolute; right: 0; bottom: -2px; left: 0; height: 3px; overflow: hidden; background: #2e2440; }
   .scroll-progress-bar { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, #61e6d6, #ffd24a); transform: scaleX(0); transform-origin: left center; }
