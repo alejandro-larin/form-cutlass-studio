@@ -264,6 +264,18 @@ export function ArtSubmissionForm() {
 
   return (
     <main className="page-shell" ref={shellRef}>
+      <div className="ambient" aria-hidden="true">
+        <span className="ambient-orb orb-yellow" />
+        <span className="ambient-orb orb-teal" />
+        <span className="ambient-orb orb-coral" />
+        <span className="ambient-shape ambient-spark spark-1">✦</span>
+        <span className="ambient-shape ambient-spark spark-2">✦</span>
+        <span className="ambient-shape ambient-plus plus-1">＋</span>
+        <span className="ambient-shape ambient-plus plus-2">＋</span>
+        <span className="ambient-shape ambient-ring" />
+        <span className="ambient-shape ambient-star">✳</span>
+      </div>
+
       <header className="topbar">
         <a className="wordmark" href="#top" aria-label="Cutlass Studio home" onClick={handleAnchorClick('top')}><span className="brand-mark">C</span><span>Cutlass Studio</span></a>
         <span className="edition"><span className="live-dot" /> OPEN CALL · 2026</span>
@@ -286,17 +298,33 @@ export function ArtSubmissionForm() {
                   <a className="hero-cta" href="#submission" onClick={handleAnchorClick('submission')} data-reveal>Submit your work <ArrowUpRight aria-hidden="true" /></a>
                   <div className="hero-note" data-reveal><span className="note-icon"><Sparkles aria-hidden="true" /></span><span>Your culture. Your language.<br /><strong>A new perspective.</strong></span></div>
                 </div>
-                <div className="artwork" ref={artworkRef} aria-label="Abstract art composition inspired by Asian art" role="img" data-reveal onPointerDown={handleArtworkPointer} onPointerMove={handleArtworkPointer} onPointerUp={handleArtworkEnd} onPointerLeave={handleArtworkEnd} onPointerCancel={handleArtworkEnd}>
-                  <div className="art-glow" />
-                  <div className="sun-disc" data-parallax="26" />
-                  <div className="art-circle circle-one" data-parallax="-18" /><div className="art-circle circle-two" data-parallax="30" />
-                  <div className="art-arc" />
-                  <div className="art-stroke stroke-one" /><div className="art-stroke stroke-two" />
-                  <span className="art-kanji kanji-one" data-parallax="16">美</span><span className="art-kanji kanji-two" data-parallax="-22">夢</span>
-                  <span className="art-caption">FIG. 01 — FORMS IN DIALOGUE</span>
-                  <span className="art-index">01 / 03</span>
-                  <div className="art-vertical">COLOR STUDY · 2026</div>
-                  <span className="art-touch-glow" aria-hidden="true" />
+                <div className="artwork-wrap">
+                  <div className="artwork" ref={artworkRef} aria-label="Abstract art composition inspired by Asian art" role="img" data-reveal onPointerDown={handleArtworkPointer} onPointerMove={handleArtworkPointer} onPointerUp={handleArtworkEnd} onPointerLeave={handleArtworkEnd} onPointerCancel={handleArtworkEnd}>
+                    <div className="art-glow" />
+                    <div className="sun-disc" data-parallax="26" />
+                    <div className="art-circle circle-one" data-parallax="-18" /><div className="art-circle circle-two" data-parallax="30" />
+                    <div className="art-arc" />
+                    <div className="art-stroke stroke-one" /><div className="art-stroke stroke-two" />
+                    <span className="art-kanji kanji-one" data-parallax="16">美</span><span className="art-kanji kanji-two" data-parallax="-22">夢</span>
+                    <span className="art-caption">FIG. 01 — FORMS IN DIALOGUE</span>
+                    <span className="art-index">01 / 03</span>
+                    <div className="art-vertical">COLOR STUDY · 2026</div>
+                    <span className="art-touch-glow" aria-hidden="true" />
+                  </div>
+                  <span className="art-spark art-spark-a" aria-hidden="true">✦</span>
+                  <span className="art-spark art-spark-b" aria-hidden="true">✦</span>
+                  <span className="art-plus" aria-hidden="true">＋</span>
+                  <div className="art-badge" aria-hidden="true">
+                    <svg className="badge-ring" viewBox="0 0 120 120">
+                      <defs>
+                        <path id="badgePath" d="M60,60 m-45,0 a45,45 0 1,1 90,0 a45,45 0 1,1 -90,0" />
+                      </defs>
+                      <text>
+                        <textPath href="#badgePath">OPEN CALL ✦ 2026 ✦ CUTLASS STUDIO ✦ SUBMIT YOUR WORK ✦ </textPath>
+                      </text>
+                    </svg>
+                    <span className="badge-core">✦</span>
+                  </div>
                 </div>
               </div>
               <div className="scroll-cue" aria-hidden="true"><span>SCROLL</span></div>
@@ -311,6 +339,12 @@ export function ArtSubmissionForm() {
                 <p data-reveal>Art needs no translation. <span>We want to see the artwork you create as a logo, inspired by this visual richness.</span></p>
                 <a href="#submission" onClick={handleAnchorClick('submission')} data-reveal>Explore the competition <ArrowUpRight aria-hidden="true" /></a>
               </div>
+              <div className="marquee" aria-hidden="true">
+                <div className="marquee-track">
+                  <span className="marquee-group">IMAGINE <b>✦</b> INTERPRET <b>✦</b> CREATE <b>✦</b> SUBMIT <b>✦</b></span>
+                  <span className="marquee-group">IMAGINE <b>✦</b> INTERPRET <b>✦</b> CREATE <b>✦</b> SUBMIT <b>✦</b></span>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -318,6 +352,7 @@ export function ArtSubmissionForm() {
             <div className="panel-inner">
               <div className="submission-section">
                 <div className="form-intro">
+                  <span className="intro-spark" aria-hidden="true">✳</span>
                   <p className="eyebrow" data-reveal><span className="eyebrow-line" /> YOUR TURN <span className="eyebrow-line" /></p>
                   <h2 data-reveal>The next<br />story is <span>yours.</span></h2>
                   <p data-reveal>Add your details and share your design with us. The full rules and details will be available in our announcements channel.</p>
@@ -356,6 +391,8 @@ export function ArtSubmissionForm() {
 
           <footer className="panel panel-footer" id="bases" data-panel>
             <div className="panel-inner">
+              <span className="footer-year" aria-hidden="true">2026</span>
+              <span className="footer-spark" aria-hidden="true">✦</span>
               <div className="footer">
                 <a className="wordmark footer-brand" href="#top" aria-label="Cutlass Studio home" onClick={handleAnchorClick('top')} data-reveal><span className="brand-mark">C</span><span>Cutlass Studio</span></a>
                 <span data-reveal>A CELEBRATION OF CREATIVITY WITHOUT BORDERS.</span>
