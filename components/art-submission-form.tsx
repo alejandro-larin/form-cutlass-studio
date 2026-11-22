@@ -7,7 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowUpRight, Check, FileImage, ImagePlus, Sparkles, Upload, X } from 'lucide-react'
 
 const PANEL_COUNT = 4
-const HORIZONTAL_QUERY = '(min-width: 768px) and (prefers-reduced-motion: no-preference)'
+const HORIZONTAL_QUERY = '(min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference)'
 const MOBILE_QUERY = '(max-width: 767px) and (prefers-reduced-motion: no-preference)'
 
 export function ArtSubmissionForm() {
@@ -100,6 +100,7 @@ export function ArtSubmissionForm() {
       if (!viewport || !track) return
 
       gsap.registerPlugin(ScrollTrigger)
+      document.fonts?.ready.then(() => ScrollTrigger.refresh()).catch(() => {})
 
       const mm = gsap.matchMedia()
 
@@ -176,8 +177,6 @@ export function ArtSubmissionForm() {
           )
         })
 
-        document.fonts?.ready.then(() => ScrollTrigger.refresh()).catch(() => {})
-
         return () => {
           triggerRef.current = null
         }
@@ -199,7 +198,7 @@ export function ArtSubmissionForm() {
             ease: 'power3.out',
             scrollTrigger: {
               trigger: panel,
-              start: 'top 92%',
+              start: 'top bottom-=40px',
               toggleActions: 'play none none reverse',
             },
           })
@@ -208,17 +207,23 @@ export function ArtSubmissionForm() {
         if (heroPanel) {
           const artwork = heroPanel.querySelector<HTMLElement>('.artwork')
           if (artwork) {
-            gsap.to(artwork, {
-              y: () => window.innerHeight * -0.06,
-              rotate: 1.4,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: heroPanel,
-                start: 'top top',
-                end: 'bottom top',
-                scrub: true,
+            gsap.fromTo(
+              artwork,
+              { y: 0, rotate: 0, scale: 1 },
+              {
+                y: () => window.innerHeight * -0.06,
+                rotate: 1.4,
+                scale: 1,
+                ease: 'none',
+                scrollTrigger: {
+                  trigger: heroPanel,
+                  start: 'top top',
+                  end: 'bottom top',
+                  scrub: true,
+                  invalidateOnRefresh: true,
+                },
               },
-            })
+            )
           }
         }
 

@@ -97,7 +97,7 @@ h1 span { color: #d3ff5c; }
 .success-state { display: flex; min-height: 355px; flex-direction: column; align-items: flex-start; justify-content: center; }.success-icon { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 22px; border-radius: 50%; background: #d3ff5c; color: #17180f; }.success-icon svg { width: 20px; }.success-state .eyebrow { color: #d3ff5c; }.success-state h3 { margin-top: 12px; font-size: 38px; line-height: 1.03; }.success-state > p:not(.eyebrow) { max-width: 320px; color: #aaa49d; font-size: 11px; line-height: 1.8; }.text-button { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 0; border: 0; background: transparent; color: #d3ff5c; font-size: 10px; cursor: pointer; }.text-button svg { width: 14px; }
 .footer { display: flex; min-height: 75px; align-items: center; justify-content: space-between; border-top: 1px solid #292827; }.footer-brand { transform: scale(.84); transform-origin: left center; }.footer > span { font-size: 7px; }.footer > a:last-child { color: #a9a39b; font-size: 9px; }
 @media (min-width: 1200px) { .hero { min-height: 630px; }.artwork { height: 475px; } }
-@media (max-width: 760px) { .page-shell { padding: 0 6%; }.topbar { height: 69px; }.edition { font-size: 7px; letter-spacing: .08em; }.top-link { font-size: 10px; }.hero { grid-template-columns: 1fr; gap: 39px; padding: 58px 0 62px; }.hero-note { position: static; margin-top: 24px; }.artwork { height: min(90vw, 390px); }.manifesto { grid-template-columns: 1fr; gap: 14px; padding: 24px 0; }.manifesto a { justify-self: start; }.submission-section { grid-template-columns: 1fr; gap: 33px; padding: 72px 0; }.form-intro h2 { font-size: 57px; }.form-card { padding: 22px; }.footer { flex-wrap: wrap; gap: 12px; padding: 17px 0; }.footer > span { order: 3; width: 100%; }.footer > a:last-child { font-size: 8px; } }
+@media (max-width: 767px) { .page-shell { padding: 0 6%; }.topbar { height: 69px; }.edition { font-size: 7px; letter-spacing: .08em; }.top-link { font-size: 10px; }.hero { grid-template-columns: 1fr; gap: 39px; padding: 58px 0 62px; }.hero-note { position: static; margin-top: 24px; }.artwork { height: min(90vw, 390px); }.manifesto { grid-template-columns: 1fr; gap: 14px; padding: 24px 0; }.manifesto a { justify-self: start; }.submission-section { grid-template-columns: 1fr; gap: 33px; padding: 72px 0; }.form-intro h2 { font-size: 57px; }.form-card { padding: 22px; }.footer { flex-wrap: wrap; gap: 12px; padding: 17px 0; }.footer > span { order: 3; width: 100%; }.footer > a:last-child { font-size: 8px; } }
 @media (max-width: 390px) { .edition { max-width: 130px; text-align: center; line-height: 1.5; }.topbar { gap: 8px; }.wordmark { gap: 6px; font-size: 13px; }.brand-mark { width: 27px; height: 27px; }.form-card { padding: 18px; }.form-heading-label { font-size: 7px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
 
@@ -150,7 +150,7 @@ h1 span { color: #ffd24a; display: inline-block; text-shadow: 3px 3px 0 #ff7168;
 .success-state > p:not(.eyebrow) { color: #d0c4de; font-weight: 700; }
 .text-button, .footer > a:last-child { color: #61e6d6; font-weight: 900; }
 .footer { border-top: 2px solid #fff8e7; }
-@media (max-width: 760px) {
+@media (max-width: 767px) {
   .hero { gap: 32px; padding-top: 48px; }
   .artwork { border-radius: 16px; box-shadow: 5px 5px 0 #ffd24a; }
   .form-card { padding: 20px; border-radius: 17px; box-shadow: 5px 5px 0 #8b70f5; }
@@ -165,7 +165,7 @@ body { overflow-x: hidden; }
 .topbar-actions { display: flex; align-items: center; gap: 18px; }
 .scroll-progress, .panel-counter { display: none; }
 
-@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) {
   .page-shell { max-width: none; padding: 0; overflow: visible; }
   .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; max-width: 1440px; margin: 0 auto; padding: 0 7.2%; background: rgba(23, 19, 33, .86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
   .panel-counter { display: inline-flex; align-items: center; color: #61e6d6; font-size: 9px; font-weight: 900; letter-spacing: .16em; font-variant-numeric: tabular-nums; }
@@ -195,7 +195,7 @@ body { overflow-x: hidden; }
   .panel .footer > a:last-child { font-size: 13px; }
 }
 
-@media (min-width: 768px) and (prefers-reduced-motion: no-preference) and (max-height: 860px) {
+@media (min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) and (max-height: 860px) {
   .panel-inner { padding-top: 98px; padding-bottom: 28px; }
   .panel-hero h1 { font-size: clamp(52px, 6.6vw, 88px); }
   .panel .artwork { height: min(60vh, 420px); }
@@ -212,7 +212,7 @@ body { overflow-x: hidden; }
   .panel-submission .form-intro h2 { font-size: clamp(38px, 4.6vw, 56px); }
 }
 
-@media (min-width: 768px) and (prefers-reduced-motion: no-preference) and (max-height: 720px) {
+@media (min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) and (max-height: 720px) {
   .panel-inner { padding-top: 90px; padding-bottom: 18px; }
   .panel-hero h1 { font-size: clamp(44px, 5.6vw, 70px); }
   .panel .artwork { height: min(56vh, 360px); }
@@ -221,7 +221,7 @@ body { overflow-x: hidden; }
   .panel-submission .deadline { margin-top: 20px; }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 767px) {
   .topbar-actions { gap: 0; }
 }
 
@@ -230,7 +230,7 @@ body { overflow-x: hidden; }
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) {
   .panel-hero .hero-copy > [data-reveal],
   .panel-hero .artwork {
     animation: hero-reveal .9s cubic-bezier(.22, 1, .36, 1) both;
@@ -314,4 +314,14 @@ body { overflow-x: hidden; }
   .panel-hero .circle-two,
   .panel-hero .kanji-one,
   .panel-hero .kanji-two { will-change: transform; }
+}
+
+.wordmark, .top-link { white-space: nowrap; }
+
+@media (max-width: 767px) {
+  h1 { font-size: clamp(46px, 15.6vw, 104px); }
+}
+
+@media (max-width: 340px) {
+  .edition { display: none; }
 }
