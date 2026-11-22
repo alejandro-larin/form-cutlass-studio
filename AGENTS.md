@@ -1,25 +1,23 @@
 # AGENTS.md
 
-Single-page Next.js 16 (App Router) marketing site: a one-page art-competition submission form.
+Single-page Next.js 16 (App Router) art-competition site. Submissions upload to Google Drive.
 
 ## Commands
-- Install: `pnpm install` (pnpm only; `packageManager` pins pnpm@12.3.4).
-- Dev: `pnpm dev` · Build: `pnpm build` · Serve: `pnpm start`.
-- No test, lint, or typecheck scripts exist. To typecheck, run `pnpm exec tsc --noEmit`.
-- `pnpm build` does NOT catch type errors: `next.config.mjs` sets `typescript.ignoreBuildErrors: true`. Run `tsc --noEmit` explicitly before claiming type safety.
+- Use pnpm only (`packageManager` pins `pnpm@12.3.4`): `pnpm install`, `pnpm dev`, `pnpm build`, `pnpm start`.
+- No test or lint scripts. Typecheck with `pnpm exec tsc --noEmit`.
+- `pnpm build` skips type errors (`typescript.ignoreBuildErrors`), so always run `tsc --noEmit` explicitly.
+- Google Drive OAuth: `pnpm google:auth` (reads `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` from `.env`/`.env.local`).
 
-## Structure
-- `app/page.tsx` is a thin wrapper; all page UI lives in `components/art-submission-form.tsx` (`'use client'`).
-- `@/*` maps to the repo root (not `src/`), per `tsconfig.json`.
-- `app/layout.tsx` holds metadata, icons, and Vercel Analytics (production only).
+## Architecture
+- All page UI and GSAP live in `components/art-submission-form.tsx` (`'use client'`); `app/page.tsx` is a wrapper. `@/*` maps to the repo root.
+- Four panels. With `(min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference)` GSAP pins and scrolls horizontally; otherwise the layout is vertical. Keep the matchMedia queries and `PANEL_COUNT` in sync when changing panels.
+- Most styling is custom CSS in `app/globals.css`, not Tailwind utilities. Tailwind v4 has no config file; theme lives in `globals.css`. shadcn uses `base-nova` on `@base-ui/react`, not Radix.
+- Fonts are imported as `Bowlby One SC` + `Nunito`; the `@theme` vars still say `DM Sans`/`Manrope`, so do not rely on `--font-sans`/`--font-display`.
+- UI copy is English; `aria-label="Quitar archivo"` is intentionally Spanish.
 
-## Styling
-- Tailwind v4 with no `tailwind.config.*`; config lives in `app/globals.css` (`@import`, `@theme inline`, `@custom-variant dark`).
-- The page is styled primarily with custom CSS classes (`.page-shell`, `.hero`, `.form-card`, ...) defined in `app/globals.css`, not Tailwind utilities. Add/adjust styles there and reuse existing class names.
-- Google Fonts are loaded via `@import url(...)` in `app/globals.css`; the `@theme` font vars (`DM Sans`, `Manrope`) must match what is actually imported.
-- shadcn config (`components.json`): style `base-nova`, built on `@base-ui/react` — NOT Radix. `components/ui/button.tsx` wraps Base UI's Button.
-
-## Behavior notes
-- Submission is client-only: `handleSubmit` just flips a local `submitted` state. There is no API, network call, or persistence; do not assume a backend.
-- Upload validation (allowed MIME types, 20 MB cap) lives in `selectFile` in `art-submission-form.tsx`.
-- One aria-label is Spanish (`"Quitar archivo"`); UI copy is otherwise English.
+## Drive submission
+- Flow: client validates with Zod → `POST /api/drive/session` creates a resumable session → client sends 2 MB chunks to `POST /api/drive/upload`. Google Drive is the only persistence.
+- Vercel's payload limit is why uploads are chunked. Keep chunks ≤ 2 MB and non-final chunks multiples of 256 KB; never send the whole 20 MB file through one route. Both API routes must stay on the Node runtime.
+- `lib/validation.ts` is shared client/server (name, terms, MIME types, 20 MB cap). Server revalidates, and the first chunk is magic-byte checked. Drive file name: `Name - logo - YYYY-MM-DD.ext`.
+- Drive auth is an OAuth refresh token with full `drive` scope, not a service account. The session URL is stored in an HttpOnly cookie; `lib/google-drive.ts` uses raw REST + `fetch` (no `googleapis` dependency).
+- Server-only env: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_DRIVE_FOLDER_ID` (see `.env.example`). OAuth "Testing" mode refresh tokens expire after 7 days. Never print or commit `.env*` or `client-secret.json`.

@@ -5,15 +5,69 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowUpRight, Check, FileImage, ImagePlus, Sparkles, Upload, X } from 'lucide-react'
+import { submissionDetailsSchema, validateArtworkFile } from '@/lib/validation'
 
 const PANEL_COUNT = 4
 const HORIZONTAL_QUERY = '(min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference)'
 const MOBILE_QUERY = '(max-width: 767px) and (prefers-reduced-motion: no-preference)'
+const DEFAULT_CHUNK_SIZE = 2 * 1024 * 1024
+
+type ChunkResponse = {
+  done: boolean
+  nextOffset: number
+  file?: { id: string; name?: string }
+  error?: string
+  retryable?: boolean
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function uploadChunkWithRetry(offset: number, chunk: Blob): Promise<ChunkResponse> {
+  let lastError: unknown = new Error('Could not upload the artwork. Please try again.')
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    let response: Response
+    try {
+      response = await fetch('/api/drive/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'X-Upload-Offset': String(offset),
+        },
+        body: chunk,
+      })
+    } catch (error) {
+      lastError = error
+      if (attempt < 2) await sleep(600 * (attempt + 1))
+      continue
+    }
+
+    const data = (await response.json().catch(() => null)) as ChunkResponse | null
+
+    if (response.ok && data) return data
+
+    lastError = new Error(data?.error ?? 'Could not upload the artwork. Please try again.')
+    if (response.status < 500) throw lastError
+    if (attempt < 2) await sleep(600 * (attempt + 1))
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error('Could not upload the artwork. Please try again.')
+}
 
 export function ArtSubmissionForm() {
   const [file, setFile] = useState<File | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [fileError, setFileError] = useState('')
+  const [nameError, setNameError] = useState('')
+  const [termsError, setTermsError] = useState('')
+  const [submitError, setSubmitError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const submittingRef = useRef(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const shellRef = useRef<HTMLElement>(null)
   const viewportRef = useRef<HTMLDivElement>(null)
@@ -25,33 +79,144 @@ export function ArtSubmissionForm() {
 
   function selectFile(candidate?: File) {
     setFileError('')
+    setSubmitError('')
+
     if (!candidate) {
       setFile(null)
       return
     }
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
-    if (!allowedTypes.includes(candidate.type)) {
+
+    const validation = validateArtworkFile(candidate)
+    if (!validation.ok) {
       setFile(null)
-      setFileError('Choose a JPG, PNG, WEBP, or PDF file.')
+      setFileError(validation.message)
       if (inputRef.current) inputRef.current.value = ''
       return
     }
-    if (candidate.size > 20 * 1024 * 1024) {
-      setFile(null)
-      setFileError('Your file exceeds the 20 MB limit.')
-      if (inputRef.current) inputRef.current.value = ''
-      return
-    }
+
     setFile(candidate)
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function resetForm() {
+    setSubmitted(false)
+    setFile(null)
+    setFileError('')
+    setNameError('')
+    setTermsError('')
+    setSubmitError('')
+    setUploadProgress(0)
+    submittingRef.current = false
+    setSubmitting(false)
+    if (inputRef.current) inputRef.current.value = ''
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!file) {
-      inputRef.current?.focus()
+    if (submittingRef.current) return
+
+    setSubmitError('')
+    setNameError('')
+    setTermsError('')
+    setFileError('')
+
+    const form = event.currentTarget
+    const formData = new FormData(form)
+    const details = submissionDetailsSchema.safeParse({
+      fullName: String(formData.get('fullName') ?? ''),
+      terms: formData.get('terms') === 'on',
+    })
+
+    let nameIssue = false
+    let termsIssue = false
+    if (!details.success) {
+      for (const issue of details.error.issues) {
+        if (issue.path[0] === 'fullName') {
+          setNameError(issue.message)
+          nameIssue = true
+        }
+        if (issue.path[0] === 'terms') {
+          setTermsError(issue.message)
+          termsIssue = true
+        }
+      }
+    }
+
+    const fileValidation = validateArtworkFile(file)
+    if (!fileValidation.ok) setFileError(fileValidation.message)
+
+    if (nameIssue || termsIssue || !fileValidation.ok) {
+      if (nameIssue) document.getElementById('fullName')?.focus()
+      else if (!fileValidation.ok) inputRef.current?.focus()
+      else if (termsIssue) document.getElementById('terms')?.focus()
       return
     }
-    setSubmitted(true)
+
+    const selectedFile = file
+    if (!selectedFile) return
+
+    submittingRef.current = true
+    setSubmitting(true)
+    setUploadProgress(0)
+
+    try {
+      const sessionResponse = await fetch('/api/drive/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: details.success ? details.data.fullName : '',
+          terms: true,
+          file: {
+            fileName: selectedFile.name,
+            mimeType: selectedFile.type,
+            size: selectedFile.size,
+          },
+        }),
+      })
+
+      const sessionData = (await sessionResponse.json().catch(() => null)) as
+        | { chunkSize?: number; error?: string }
+        | null
+
+      if (!sessionResponse.ok) {
+        throw new Error(sessionData?.error ?? 'Could not start the upload. Please try again.')
+      }
+
+      const chunkSize =
+        typeof sessionData?.chunkSize === 'number' && sessionData.chunkSize > 0
+          ? sessionData.chunkSize
+          : DEFAULT_CHUNK_SIZE
+
+      let offset = 0
+      while (offset < selectedFile.size) {
+        const end = Math.min(offset + chunkSize, selectedFile.size)
+        const chunk = selectedFile.slice(offset, end)
+        const result = await uploadChunkWithRetry(offset, chunk)
+        const nextOffset = result.done ? selectedFile.size : result.nextOffset
+
+        if (
+          !Number.isInteger(nextOffset) ||
+          nextOffset <= offset ||
+          nextOffset > selectedFile.size
+        ) {
+          throw new Error('The upload response was invalid. Please try again.')
+        }
+
+        offset = nextOffset
+        setUploadProgress(Math.min(100, Math.round((offset / selectedFile.size) * 100)))
+      }
+
+      setUploadProgress(100)
+      setSubmitted(true)
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : 'Could not upload the artwork. Please try again.',
+      )
+    } finally {
+      submittingRef.current = false
+      setSubmitting(false)
+    }
   }
 
   function scrollToPanel(id: string) {
@@ -366,21 +531,27 @@ export function ArtSubmissionForm() {
                       <p className="eyebrow">SUBMISSION COMPLETE</p>
                       <h3>Your artwork is<br />on its way.</h3>
                       <p>Thanks for sharing your perspective. Keep an eye on the announcements channel for next steps.</p>
-                      <button className="text-button" onClick={() => { setSubmitted(false); setFile(null) }}>Submit another artwork <ArrowUpRight aria-hidden="true" /></button>
+                      <button className="text-button" type="button" onClick={resetForm}>Submit another artwork <ArrowUpRight aria-hidden="true" /></button>
                     </div>
                   ) : (
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} noValidate aria-busy={submitting}>
                       <div className="form-heading"><span className="form-step">02 / 02</span><span className="form-heading-label">ENTRY FORM</span></div>
                       <label className="field-label" htmlFor="fullName">Full name <span>*</span></label>
-                      <input className="text-input" id="fullName" name="fullName" placeholder="What should we call you?" autoComplete="name" required />
+                      <input className="text-input" id="fullName" name="fullName" placeholder="What should we call you?" autoComplete="name" required disabled={submitting} aria-invalid={nameError ? true : undefined} aria-describedby={nameError ? 'fullName-error' : undefined} onChange={() => { if (nameError) setNameError(''); if (submitError) setSubmitError('') }} />
+                      {nameError && <p className="field-error" id="fullName-error" role="alert">{nameError}</p>}
                       <label className="field-label upload-label" htmlFor="artwork">Your artwork <span>*</span></label>
-                      <input ref={inputRef} className="visually-hidden" id="artwork" name="artwork" type="file" accept="image/png,image/jpeg,image/webp,application/pdf" required onChange={(event) => selectFile(event.target.files?.[0])} />
-                      <button className={`upload-zone${file ? ' has-file' : ''}`} type="button" onClick={() => inputRef.current?.click()} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); const dropped = event.dataTransfer.files[0]; if (dropped) { const transfer = new DataTransfer(); transfer.items.add(dropped); if (inputRef.current) inputRef.current.files = transfer.files; selectFile(dropped) } }} aria-describedby="upload-help">
+                      <input ref={inputRef} className="visually-hidden" id="artwork" name="artwork" type="file" accept="image/png,image/jpeg,image/webp,application/pdf" required disabled={submitting} onChange={(event) => selectFile(event.target.files?.[0])} />
+                      <button className={`upload-zone${file ? ' has-file' : ''}`} type="button" disabled={submitting} aria-invalid={fileError ? true : undefined} onClick={() => inputRef.current?.click()} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); const dropped = event.dataTransfer.files[0]; if (dropped) { const transfer = new DataTransfer(); transfer.items.add(dropped); if (inputRef.current) inputRef.current.files = transfer.files; selectFile(dropped) } }} aria-describedby="upload-help">
                         {file ? <><FileImage aria-hidden="true" /><span className="upload-copy"><strong>{file.name}</strong><small>{(file.size / 1024 / 1024).toFixed(2)} MB · Ready to submit</small></span><span className="remove-file" onClick={(event) => { event.stopPropagation(); selectFile(); if (inputRef.current) inputRef.current.value = '' }} aria-label="Quitar archivo"><X aria-hidden="true" /></span></> : <><span className="upload-icon"><ImagePlus aria-hidden="true" /></span><span className="upload-copy"><strong>Drop your artwork here</strong><small>or <span className="browse-link">browse your files</span></small></span><span className="upload-action"><Upload aria-hidden="true" /></span></>}
                       </button>
-                      <p className="upload-help" id="upload-help" aria-live="polite">{fileError || 'JPG, PNG, WEBP, or PDF · Up to 20 MB'}</p>
-                      <label className="terms-row"><input type="checkbox" name="terms" required /><span className="custom-check"><Check aria-hidden="true" /></span><span>I have read and agree to the <a href="#bases" onClick={handleAnchorClick('bases')}>competition rules</a> and consent to the use of my work under those terms.</span></label>
-                      <button className="submit-button" type="submit">Submit my artwork <ArrowUpRight aria-hidden="true" /></button>
+                      <p className={`upload-help${fileError ? ' has-error' : ''}`} id="upload-help" aria-live="polite">{fileError || 'JPG, PNG, WEBP, or PDF · Up to 20 MB'}</p>
+                      <label className="terms-row"><input id="terms" type="checkbox" name="terms" required disabled={submitting} aria-invalid={termsError ? true : undefined} aria-describedby={termsError ? 'terms-error' : undefined} onChange={() => { if (termsError) setTermsError(''); if (submitError) setSubmitError('') }} /><span className="custom-check"><Check aria-hidden="true" /></span><span>I have read and agree to the <a href="#bases" onClick={handleAnchorClick('bases')}>competition rules</a> and consent to the use of my work under those terms.</span></label>
+                      {termsError && <p className="field-error" id="terms-error" role="alert">{termsError}</p>}
+                      <button className={`submit-button${submitting ? ' is-uploading' : ''}`} type="submit" disabled={submitting}>
+                        {submitting ? <><span>Uploading artwork</span><span>{uploadProgress}%</span></> : <><span>Submit my artwork</span><ArrowUpRight aria-hidden="true" /></>}
+                        <span className="submit-progress" style={{ transform: `scaleX(${uploadProgress / 100})` }} aria-hidden="true" />
+                      </button>
+                      {submitError && <p className="form-error" role="alert">{submitError}</p>}
                       <p className="form-footnote"><span className="required-star">*</span> Required fields <span className="footnote-divider">·</span> Your information is secure</p>
                     </form>
                   )}

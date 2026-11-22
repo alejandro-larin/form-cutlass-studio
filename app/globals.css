@@ -436,3 +436,16 @@ body { overflow-x: hidden; }
   .art-badge, .art-badge::before, .badge-ring, .badge-core, .marquee-track,
   .intro-spark, .footer-year, .footer-spark { animation: none !important; }
 }
+
+/* Submission validation and upload states */
+.field-error { margin: 7px 0 0; color: #ffb3ad; font-size: 9px; font-weight: 800; line-height: 1.55; }
+.form-error { margin: 12px 0 0; padding: 10px 12px; border: 2px solid #ff7168; border-radius: 10px; background: rgba(255, 113, 104, .12); color: #ffd7d3; font-size: 9px; font-weight: 800; line-height: 1.6; }
+.text-input[aria-invalid='true'] { border-color: #ff7168; box-shadow: 3px 3px 0 rgba(255, 113, 104, .45); }
+.upload-zone[aria-invalid='true'] { border-color: #ff7168; background: rgba(255, 113, 104, .08); }
+.terms-row input[aria-invalid='true'] + .custom-check { border-color: #ff7168; box-shadow: 2px 2px 0 rgba(255, 113, 104, .45); }
+.upload-zone:disabled { cursor: wait; opacity: .65; }
+.submit-button { position: relative; overflow: hidden; }
+.submit-button:disabled { cursor: wait; transform: none; background: #ffd24a; box-shadow: 4px 4px 0 #ff7168; }
+.submit-button.is-uploading { background: #ffe27a; }
+.submit-progress { position: absolute; right: 0; bottom: 0; left: 0; height: 4px; background: #171321; opacity: .35; pointer-events: none; transform: scaleX(0); transform-origin: left center; transition: transform .25s ease; }
+.upload-help.has-error { color: #ffb3ad; font-weight: 800; }
