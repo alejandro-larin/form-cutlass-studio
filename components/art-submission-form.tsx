@@ -457,14 +457,14 @@ export function ArtSubmissionForm() {
             <div className="panel-inner">
               <div className="hero">
                 <div className="hero-copy">
-                  <p className="eyebrow" data-reveal><span className="eyebrow-line" /> ASIAN ART COMPETITION <span className="eyebrow-line" /></p>
+                  <p className="eyebrow" data-reveal><span className="eyebrow-line" /> LOGO ART COMPETITION <span className="eyebrow-line" /></p>
                   <h1 data-reveal>Imagine.<br /><span>Interpret.</span><br />Create.</h1>
-                  <p className="hero-description" data-reveal>An invitation to explore the beauty, symbols, and stories of Asian art through your own perspective.</p>
+                  <p className="hero-description" data-reveal>An invitation to explore the beauty, symbols, and stories of Logo art through your own perspective.</p>
                   <a className="hero-cta" href="#submission" onClick={handleAnchorClick('submission')} data-reveal>Submit your work <ArrowUpRight aria-hidden="true" /></a>
                   <div className="hero-note" data-reveal><span className="note-icon"><Sparkles aria-hidden="true" /></span><span>Your culture. Your language.<br /><strong>A new perspective.</strong></span></div>
                 </div>
                 <div className="artwork-wrap">
-                  <div className="artwork" ref={artworkRef} aria-label="Abstract art composition inspired by Asian art" role="img" data-reveal onPointerDown={handleArtworkPointer} onPointerMove={handleArtworkPointer} onPointerUp={handleArtworkEnd} onPointerLeave={handleArtworkEnd} onPointerCancel={handleArtworkEnd}>
+                  <div className="artwork" ref={artworkRef} aria-label="Abstract art composition inspired by Logo art" role="img" data-reveal onPointerDown={handleArtworkPointer} onPointerMove={handleArtworkPointer} onPointerUp={handleArtworkEnd} onPointerLeave={handleArtworkEnd} onPointerCancel={handleArtworkEnd}>
                     <div className="art-glow" />
                     <div className="sun-disc" data-parallax="26" />
                     <div className="art-circle circle-one" data-parallax="-18" /><div className="art-circle circle-two" data-parallax="30" />
@@ -520,7 +520,7 @@ export function ArtSubmissionForm() {
                   <span className="intro-spark" aria-hidden="true">✳</span>
                   <p className="eyebrow" data-reveal><span className="eyebrow-line" /> YOUR TURN <span className="eyebrow-line" /></p>
                   <h2 data-reveal>The next<br />story is <span>yours.</span></h2>
-                  <p data-reveal>Add your details and share your design with us. The full rules and details will be available in our announcements channel.</p>
+                  <p data-reveal>Add your details and share your logo with us. The full rules and details will be available in our announcements channel.</p>
                   <div className="deadline" data-reveal><span className="deadline-mark">締</span><span><strong>Open call</strong><br />Limited spots · Find the rules in announcements</span></div>
                 </div>
 

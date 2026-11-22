@@ -3,8 +3,8 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Cutlass Studio — Asian Art Competition',
-  description: 'An invitation from Cutlass Studio to explore the beauty and stories of Asian art. Share your design in our competition.',
+  title: 'Cutlass Studio — Logo Art Competition',
+  description: 'An invitation from Cutlass Studio to explore the beauty and stories of Logo art. Share your design in our competition.',
   generator: 'v0.app',
   icons: {
     icon: [
