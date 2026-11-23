@@ -392,25 +392,6 @@ export function ArtSubmissionForm() {
           }
         }
 
-        const watermark = document.querySelector<HTMLElement>('.manifesto-watermark')
-        if (watermark) {
-          gsap.fromTo(
-            watermark,
-            { y: 40, rotate: -6 },
-            {
-              y: -50,
-              rotate: 4,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: '.panel-manifesto',
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: true,
-              },
-            },
-          )
-        }
-
         ScrollTrigger.create({
           start: 0,
           end: 'max',
@@ -460,7 +441,10 @@ export function ArtSubmissionForm() {
                   <p className="eyebrow" data-reveal><span className="eyebrow-line" /> LOGO ART COMPETITION <span className="eyebrow-line" /></p>
                   <h1 data-reveal>Imagine.<br /><span>Interpret.</span><br />Create.</h1>
                   <p className="hero-description" data-reveal>An invitation to explore the beauty, symbols, and stories of Logo art through your own perspective.</p>
-                  <a className="hero-cta" href="#submission" onClick={handleAnchorClick('submission')} data-reveal>Submit your work <ArrowUpRight aria-hidden="true" /></a>
+                  <div className="hero-actions" data-reveal>
+                    <a className="hero-secondary" href="/rules">Read the rules <ArrowUpRight aria-hidden="true" /></a>
+                    <a className="hero-cta" href="#submission" onClick={handleAnchorClick('submission')}>Submit your work <ArrowUpRight aria-hidden="true" /></a>
+                  </div>
                   <div className="hero-note" data-reveal><span className="note-icon"><Sparkles aria-hidden="true" /></span><span>Your culture. Your language.<br /><strong>A new perspective.</strong></span></div>
                 </div>
                 <div className="artwork-wrap">
@@ -470,7 +454,6 @@ export function ArtSubmissionForm() {
                     <div className="art-circle circle-one" data-parallax="-18" /><div className="art-circle circle-two" data-parallax="30" />
                     <div className="art-arc" />
                     <div className="art-stroke stroke-one" /><div className="art-stroke stroke-two" />
-                    <span className="art-kanji kanji-one" data-parallax="16">美</span><span className="art-kanji kanji-two" data-parallax="-22">夢</span>
                     <span className="art-caption">FIG. 01 — FORMS IN DIALOGUE</span>
                     <span className="art-index">01 / 03</span>
                     <div className="art-vertical">COLOR STUDY · 2026</div>
@@ -498,7 +481,6 @@ export function ArtSubmissionForm() {
 
           <section className="panel panel-manifesto" data-panel>
             <div className="panel-inner">
-              <span className="manifesto-watermark" aria-hidden="true">美</span>
               <div className="manifesto">
                 <span className="manifesto-index" data-reveal>01 — THE INVITATION</span>
                 <p data-reveal>Art needs no translation. <span>We want to see the artwork you create as a logo, inspired by this visual richness.</span></p>
@@ -521,7 +503,7 @@ export function ArtSubmissionForm() {
                   <p className="eyebrow" data-reveal><span className="eyebrow-line" /> YOUR TURN <span className="eyebrow-line" /></p>
                   <h2 data-reveal>The next<br />story is <span>yours.</span></h2>
                   <p data-reveal>Add your details and share your logo with us. The full rules and details will be available in our announcements channel.</p>
-                  <div className="deadline" data-reveal><span className="deadline-mark">締</span><span><strong>Open call</strong><br />Limited spots · Find the rules in announcements</span></div>
+                  <div className="deadline" data-reveal><span className="deadline-mark"><Sparkles aria-hidden="true" /></span><span><strong>Open call</strong><br />Limited spots · Find the rules in announcements</span></div>
                 </div>
 
                 <div className="form-card" data-reveal>
@@ -545,7 +527,7 @@ export function ArtSubmissionForm() {
                         {file ? <><FileImage aria-hidden="true" /><span className="upload-copy"><strong>{file.name}</strong><small>{(file.size / 1024 / 1024).toFixed(2)} MB · Ready to submit</small></span><span className="remove-file" onClick={(event) => { event.stopPropagation(); selectFile(); if (inputRef.current) inputRef.current.value = '' }} aria-label="Quitar archivo"><X aria-hidden="true" /></span></> : <><span className="upload-icon"><ImagePlus aria-hidden="true" /></span><span className="upload-copy"><strong>Drop your artwork here</strong><small>or <span className="browse-link">browse your files</span></small></span><span className="upload-action"><Upload aria-hidden="true" /></span></>}
                       </button>
                       <p className={`upload-help${fileError ? ' has-error' : ''}`} id="upload-help" aria-live="polite">{fileError || 'JPG, PNG, WEBP, or PDF · Up to 20 MB'}</p>
-                      <label className="terms-row"><input id="terms" type="checkbox" name="terms" required disabled={submitting} aria-invalid={termsError ? true : undefined} aria-describedby={termsError ? 'terms-error' : undefined} onChange={() => { if (termsError) setTermsError(''); if (submitError) setSubmitError('') }} /><span className="custom-check"><Check aria-hidden="true" /></span><span>I have read and agree to the <a href="#bases" onClick={handleAnchorClick('bases')}>competition rules</a> and consent to the use of my work under those terms.</span></label>
+                      <label className="terms-row"><input id="terms" type="checkbox" name="terms" required disabled={submitting} aria-invalid={termsError ? true : undefined} aria-describedby={termsError ? 'terms-error' : undefined} onChange={() => { if (termsError) setTermsError(''); if (submitError) setSubmitError('') }} /><span className="custom-check"><Check aria-hidden="true" /></span><span>I have read and agree to the <a href="/rules">competition rules</a> and consent to the use of my work under those terms.</span></label>
                       {termsError && <p className="field-error" id="terms-error" role="alert">{termsError}</p>}
                       <button className={`submit-button${submitting ? ' is-uploading' : ''}`} type="submit" disabled={submitting}>
                         {submitting ? <><span>Uploading artwork</span><span>{uploadProgress}%</span></> : <><span>Submit my artwork</span><ArrowUpRight aria-hidden="true" /></>}
